@@ -1,6 +1,6 @@
 SELECT p.round_id
 , r.started as `round_started`
-, r.duration_seconds as `round_duration`
+, r.duration_minutes `round_duration`
 , p.team_id
 , t.win AS `team_win`
 , p.username

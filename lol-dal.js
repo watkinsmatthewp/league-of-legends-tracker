@@ -11,6 +11,8 @@ exports.getAllGameData = async function() {
   const rounds = {};
   
   const rows = await dbGetAll(await readSqlScript("get-all-game-data"));
+  console.log(`Got ${rows.length} rows`);
+  
   for (const row of rows) {
     const round = rounds[row.round_id] = rounds[row.round_id] || {
       id: row.round_id,
@@ -34,6 +36,16 @@ exports.getAllGameData = async function() {
   
   return rounds;
 };
+
+exports.getAllGameDataCsv = async function() {
+  const rows = await dbGetAll(await readSqlScript("get-all-game-data"));
+  return objsToCsv(rows);
+}
+
+exports.updateAllGameDataCsv = async function(rows) {
+  await dbRunAll(await readSqlScript("init"));
+  
+}
 
 // region Private helpers
 
@@ -82,6 +94,28 @@ async function dbGetAll(sql) {
       }
     });
   });
+}
+
+function objsToCsv(array) {
+  const keys = Object.keys(array[0]);
+  let csv = keys.join(',');
+  
+  for (const item of array) {
+    let row = '';
+    for (const key of keys) {
+      if (row.length > 0) {
+        row += ',';
+      }
+      row += item[key];
+    }
+    csv += ('\n' + row);
+  }
+  
+  return csv;
+}
+
+function csvToObjects(csvWithHeaderRow) {
+  
 }
 
 // endregion

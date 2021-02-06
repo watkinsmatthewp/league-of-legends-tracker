@@ -11,6 +11,7 @@ app.set('json spaces', 2);
 app.get("/", handleIndexRequest);
 app.get("/init", handleInitRequest);
 app.get("/all-game-data.json", handleGetEverythingRequest);
+app.get("/all-game-data.csv", handleGetEverythingCsvRequest);
 
 
 // Start listening to requests
@@ -39,6 +40,19 @@ async function handleGetEverythingRequest(request, response) {
   try {
     console.log("handleGetEverythingRequest");
     response.json(await lolDAL.getAllGameData());
+  } catch (err) {
+    console.error(err);
+    response.send(err);
+  }
+}
+
+async function handleGetEverythingCsvRequest(request, response) {
+  try {
+    console.log("handleGetEverythingCsvRequest");
+    const csv = await lolDAL.getAllGameDataCsv();
+    response.setHeader('Content-Disposition', 'attachment;filename=export.csv');
+    response.setHeader('Content-Type', 'text/csv');
+    response.send(csv);
   } catch (err) {
     console.error(err);
     response.send(err);
