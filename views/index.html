@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" ontent="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>LoL Stats</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">LoL Stats</a>
+      </div>
+    </nav>
+    
+    <div class="container">
+      <main id="app" role="main" style="margin-top: 4.5rem;">
+        <div class="card" v-for="round in rounds">
+          <div class="card-header">Game #{{ round.id }}</div>
+          <div class="card-body">
+            <h4> Game stats</h4>
+            <table class="table table-bordered">
+              <tr>
+                <th class="w-50">Started at</th>
+                <td>{{ round.started }}</td>
+              </tr>
+              <tr>
+                <th>Duration</th>
+                <td>{{ Math.round(round.duration / 60) }} minutes</td>
+              </tr>
+            </table>
+
+            <div class="row mt-4">
+              <div class="col-lg" v-for="team in round.teams">
+                <h4 :class="{ 'text-success': team.win, 'text-danger': !team.win }">Team #{{ team.id }} ({{ team.win ? "Winner" : "Loser" }})</h4>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Player</th>
+                      <th>Character</th>
+                      <th>Role</th>
+                      <th>Kills</th>
+                      <th>Deaths</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="player in team.players">
+                      <td>{{ player.username }}</td>
+                      <td>{{ player.character_name }}</td>
+                      <td>{{ player.role }}</td>
+                      <td>{{ player.kills }}</td>
+                      <td>{{ player.deaths }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div> 
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./app.js"></script>
+    <script src="https://kit.fontawesome.com/71d0e575d1.js" crossorigin="anonymous"></script>
+  </body>
+</html>
