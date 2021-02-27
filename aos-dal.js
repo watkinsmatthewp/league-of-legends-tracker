@@ -10,9 +10,7 @@ exports.init = async function() {
 exports.getAllGameData = async function() {
   const rounds = {};
   
-  const rows = await dbGetAll(await readSqlScript("get-all-game-data"));
-  console.log(`Got ${rows.length} rows`);
-  
+  const rows = await dbGetAll(await readSqlScript("get-all-game-data"));  
   for (const row of rows) {
     const round = rounds[row.round_id] = rounds[row.round_id] || {
       id: row.round_id,
@@ -46,7 +44,7 @@ exports.getAllGameDataCsv = async function() {
 
 exports.updateAllGameDataCsv = async function(csv) { 
   // Read the CSV as objects
-  const rows = csvToObjects(csv);
+  let rows = csvToObjects(csv);
   for (const row of rows) {
     row.round_id = parseInt(row.round_id);
     row.round_duration = parseInt(row.round_duration);
@@ -65,37 +63,35 @@ exports.updateAllGameDataCsv = async function(csv) {
     }
     return a.username < b.username ? -1 : 1; 
   });
-  
+   
   const createRoundSQL = await readSqlScript('create-round');
   const createRoundTeamSQL = await readSqlScript('create-round-team');
-  const createRoundParticipantSQL = await readSqlScript('create-round-participant');
+  const createRoundParticipantSQL = await readSqlScript('create-round-participant');    
   
-  db.serialize(async () => {
-    await dbRun("BEGIN TRANSACTION;");
-    
-    await dbRunAll(await readSqlScript("init"));
-    
+  db.serialize(async () => {    
     let previousRoundID = null;
     let previousTeamID = null;
     
+    await dbRunAll(await readSqlScript("init"));
     for (const row of rows) {
       if (row.round_id !== previousRoundID) {
-        // Create the round
-        await db.run(createRoundSQL, [row.round_id, row.round_started, row.round_duration, row.game_version, row.season]);
+        console.log(`Creating new round ${row.round_id}`);
+        await dbRun(createRoundSQL, [row.round_id, row.round_started, row.round_duration, row.game_version, row.season]);
+        previousTeamID = null;
       }
       if (row.team_id !== previousTeamID) {
         // Create the round team
-        await db.run(createRoundTeamSQL, [row.round_id, row.team_id, row.team_win]);
+        console.log(`Creating new team ${row.team_id} for round ${row.round_id}`);
+        await dbRun(createRoundTeamSQL, [row.round_id, row.team_id, row.team_win]);
       }
       
       // Create the round participant
-      await db.run(createRoundParticipantSQL, [row.character_name, row.username, row.role_name, row.round_id, row.team_id, row.role_name, row.kills, row.deaths, row.assists, row.creep_kills]);
+      // INSERT INTO round_participants(`character_name`, `username`, `round_id`, `team_id`, `role_name`, `kills`, `deaths`, `assists`, `creep_kills`)
+      await dbRun(createRoundParticipantSQL, [row.character_name, row.username, row.round_id, row.team_id, row.role_name, row.kills, row.deaths, row.assists, row.creep_kills]);
       
       previousRoundID = row.round_id;    
       previousTeamID = row.team_id;
     }
-    
-    await db.run("COMMIT;");
   });
 }
 
@@ -116,14 +112,14 @@ async function readSqlScript(fileName) {
 async function dbRunAll(sqlBatch) {
   for (const statement of sqlBatch.split(";")) {
     if (statement && statement.trim().length > 0) {
-      await dbRun(statement);
+      await dbRun(statement + ';');
     }
   }
 }
 
 async function dbRun(sql, parameters) {
   return new Promise((resolve, reject) => {
-    console.log(`Executing ` + sql);
+    console.log(sql);
     db.run(sql, parameters || [], function(err) {
       if (err) {
         reject(err);
@@ -135,13 +131,11 @@ async function dbRun(sql, parameters) {
 }
 
 async function dbGetAll(sql) {
-  console.log(`Querying ` + sql);
   return new Promise((resolve, reject) => {
     db.all(sql, (err, rows) => {
       if (err) {
         reject(err);
       } else {
-        console.log(rows);
         resolve(rows);
       }
     });

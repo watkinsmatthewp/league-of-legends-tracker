@@ -19,13 +19,7 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
-<!--             <li class="nav-item">
-              <a class="nav-link" href="/all-game-data.csv"><i class="fas fa-download"></i> Export</a>
-            </li> -->
           </ul>
-          <!-- <span class="navbar-text">
-            Navbar text with an inline element
-          </span>-->
         </div>
       </div>
     </nav>
@@ -37,10 +31,11 @@
           <div class="card-body">
             <form action="/all-game-data.csv" method="post" enctype="multipart/form-data">
               <div class="mb-3">
-                <input class="form-control" type="file" id="dbFile" accept=".csv">
+                <input @change="onDbFileChange" class="form-control" type="file" id="dbFile" name="dbFile" accept=".csv">
               </div>
               <a href="/all-game-data.csv" class="btn btn-success"><i class="fas fa-download"></i> Export</a>
-              <button type="submit" class="btn btn-warning float-end"><i class="fas fa-upload"></i> Import</button>
+              <a href="/init" class="btn btn-danger"><i class="fas fa-trash"></i> Reset</a>
+              <button type="submit" class="btn float-end" :class="{ 'btn-warning': dbFileSelected, 'btn-light': !dbFileSelected }" v-bind:disabled="!dbFileSelected"><i class="fas fa-upload"></i> Import</button>
             </form>
           </div>
         </div>

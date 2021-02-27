@@ -1,7 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const multer  = require('multer');
-const memoryUpload = multer({ storage: multer.memoryStorage() });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const lolDAL = require("./aos-dal.js");
 
 const app = express();
@@ -15,7 +16,7 @@ app.get("/", handleIndexRequest);
 app.get("/init", handleInitRequest);
 app.get("/all-game-data.json", handleGetEverythingRequest);
 app.get("/all-game-data.csv", handleGetEverythingCsvRequest);
-app.post("/all-game-data.csv", memoryUpload.single('gameCSV'), handlePostEverythingCsvRequest);
+app.post("/all-game-data.csv", upload.single("dbFile"), handlePostEverythingCsvRequest);
 
 // Start listening to requests
 var listener = app.listen(process.env.PORT, async function() {
@@ -30,9 +31,8 @@ async function handleIndexRequest(request, response) {
 
 async function handleInitRequest(request, response) {
   try {
-    console.log("handleInitRequest");
     await lolDAL.init();
-    response.send("Done");
+    response.redirect("/");
   } catch (err) {
     console.error(err);
     response.send(err);
@@ -41,7 +41,6 @@ async function handleInitRequest(request, response) {
 
 async function handleGetEverythingRequest(request, response) {
   try {
-    console.log("handleGetEverythingRequest");
     response.json(await lolDAL.getAllGameData());
   } catch (err) {
     console.error(err);
@@ -51,7 +50,6 @@ async function handleGetEverythingRequest(request, response) {
 
 async function handleGetEverythingCsvRequest(request, response) {
   try {
-    console.log("handleGetEverythingCsvRequest");
     const csv = await lolDAL.getAllGameDataCsv();
     response.setHeader('Content-Disposition', 'attachment;filename=export.csv');
     response.setHeader('Content-Type', 'text/csv');
@@ -64,8 +62,9 @@ async function handleGetEverythingCsvRequest(request, response) {
 
 async function handlePostEverythingCsvRequest(request, response) {
   try {
-    console.log("handlePostEverythingCsvRequest");
-    console.log(request.file);
+    const csv = Buffer.from(request.file.buffer).toString("utf-8");
+    await lolDAL.updateAllGameDataCsv(csv);
+    response.redirect("/");
   } catch (err) {
     console.error(err);
     response.send(err);

@@ -76,7 +76,7 @@ VALUES ('AA Melee'), ('AA Ranged'), ('Bruiser Melee'), ('Bruiser Ranged'), ('Spe
 
 INSERT INTO character_roles(`character_name`, `role_name`)
 VALUES ('Akasha', 'AA Melee'), ('Akasha', 'AA Ranged'), ('Akasha', 'Bruiser Melee'), ('Akasha', 'Bruiser Ranged'), ('Akasha', 'Spell Damage'), ('Akasha', 'Support'), 
-	('Akasha', 'Tank'), ('Akasha', 'Brusier Ranged'), ('Alarak', 'AA Melee'), ('Alarak', 'AA Ranged'), ('Alarak', 'Bruiser Melee'), ('Alarak', 'Bruiser Ranged'), 
+    ('Akasha', 'Tank'), ('Akasha', 'Brusier Ranged'), ('Alarak', 'AA Melee'), ('Alarak', 'AA Ranged'), ('Alarak', 'Bruiser Melee'), ('Alarak', 'Bruiser Ranged'), 
     ('Alarak', 'Spell Damage'), ('Alarak', 'Support'), ('Alarak', 'Tank'), ('Alarak', 'Brusier Ranged'), ('Anthrax', 'AA Melee'), ('Anthrax', 'AA Ranged'), 
     ('Anthrax', 'Bruiser Melee'), ('Anthrax', 'Bruiser Ranged'), ('Anthrax', 'Spell Damage'), ('Anthrax', 'Support'), ('Anthrax', 'Tank'), ('Anthrax', 'Brusier Ranged'), 
     ('Arges', 'AA Melee'), ('Arges', 'AA Ranged'), ('Arges', 'Bruiser Melee'), ('Arges', 'Bruiser Ranged'), ('Arges', 'Spell Damage'), ('Arges', 'Support'), ('Arges', 'Tank'), 
@@ -178,47 +178,4 @@ VALUES ('Akasha', 'AA Melee'), ('Akasha', 'AA Ranged'), ('Akasha', 'Bruiser Mele
  * Create dynamic records
  */
 INSERT INTO users(`username`, `pw_hash`, `pw_salt`)
-VALUES ('admin', 0, 0), ('nathan', 0, 0), ('ariel', 0, 0), ('jim', 0, 0);
-
-INSERT INTO rounds(`id`, `started`, `duration_minutes`, `game_version`, `season`)
-VALUES (396, '2021-02-05', 47, '3.100', 'Season 1'), 
-       (397, '2021-02-05', 65, '3.100', 'Season 1'), 
-       (398, '2021-02-05', 40, '3.100', 'Season 1');
-
-INSERT INTO round_teams(`round_id`, `team_id`, `win`)
-VALUES (396, 'Protoss',0), (396,'Zerg', 1), 
-       (397, 'Protoss',1), (397,'Zerg', 0), 
-       (398, 'Protoss',0), (398,'Zerg', 1);
-
-INSERT INTO round_participants(`character_name`, `username`, `round_id`, `team_id`, `role_name`, `kills`, `deaths`,`assists`,`creep_kills`)
-VALUES ('Micro', 'Sterilizer', 396, 'Protoss', 'Tank', 0, 12, 3, 28),
-       ('Raynor', 'Fetext', 396, 'Protoss', 'Spell Damage', 3, 10, 9, 81),
-       ('Lord Zyrkhan', 'Grasshead', 396, 'Protoss', 'Tank', 5, 8, 5, 69),
-       ('Rancor', 'Cigs', 396, 'Protoss', 'Support', 0, 3, 14, 10),
-       ('Nova', 'Spookygeorge', 396, 'Protoss', 'AA Ranged', 9, 8, 2, 190),
-       ('Avenger', 'Megastar', 396, 'Zerg', 'AA Ranged', 8, 4, 18, 169),
-       ('Cyprus', 'Revision', 396, 'Zerg', 'Spell Damage', 10, 7, 7, 0),
-       ('Vega', 'Ubersauce', 396, 'Zerg', 'Support', 6, 4, 24, 18),
-       ('Toxi', 'Highdrater', 396, 'Zerg', 'AA Ranged', 10, 2, 18, 92),
-       ('Drake', 'Drex', 396, 'Zerg', 'Tank', 7, 0, 16, 0),
-       ('Balrog', 'Revision', 397, 'Protoss', 'Bruiser Melee', 24, 5, 10, 259),
-       ('Drake', 'Drex', 397, 'Protoss', 'Tank', 4, 7, 25, 74),
-       ('Rancor', 'Justice', 397, 'Protoss', 'Support', 2, 1, 33, 6),
-       ('Queen', 'Mother', 397, 'Protoss', 'Spell Damage', 7, 5, 17, 165),
-       ('Defiler', 'Ubersauce', 397, 'Protoss', 'AA Ranged', 13, 5, 20, 266),
-       ('Kerrigan', 'Megastar', 397, 'Zerg', 'AA Ranged', 3, 11, 6, 360),
-       ('Akasha', 'Fetext', 397, 'Zerg', 'Tank', 2, 14, 12, 21),
-       ('Rory', 'Mowgli', 397, 'Zerg', 'Support', 3, 8, 8, 64),
-       ('Vorazun', 'Spookygeorge', 397, 'Zerg', 'AA Melee', 12, 10, 4, 351),
-       ('Narud', 'Grasshead', 397, 'Zerg', 'Spell Damage', 3, 7, 7, 104),
-       ('Rory', 'TenaciousD', 398, 'Protoss', 'Support', 8, 7, 10, 23),
-       ('Garamond', 'Mowgli', 398, 'Protoss', 'Support', 1, 8, 7, 71),
-       ('Erekul', 'Tails', 398, 'Protoss', 'Tank', 3, 4, 7, 27),
-       ('Avenger', 'Revision', 398, 'Protoss', 'AA Ranged', 1, 7, 8, 97),
-       ('Toxi', 'Ubersauce', 398, 'Protoss', 'AA Ranged', 7, 10, 7, 83),
-       ('Immortal', 'Megastar', 398, 'Zerg', 'Tank', 1, 8, 15, 53),
-       ('Queen', 'Mother', 398, 'Zerg', 'Support', 2, 2, 10, 102),
-       ('Vorazun', 'Spookygeorge', 398, 'Zerg', 'AA Melee', 10, 4, 5, 182),
-       ('Mengsk', 'Grasshead', 398, 'Zerg', 'Bruiser Ranged', 8, 4, 6, 156),
-       ('Bio', 'Contact', 398, 'Zerg', 'Tank', 13, 2, 9, 70);
- 
+VALUES ('admin', 0, 0), ('nathan', 0, 0), ('ariel', 0, 0), ('jim', 0, 0); 
