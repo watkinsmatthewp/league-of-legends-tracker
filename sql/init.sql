@@ -28,7 +28,8 @@ CREATE TABLE rounds (
   `id` INTEGER PRIMARY KEY AUTOINCREMENT,
   `started` TEXT,
   `duration_minutes` INTEGER,
-  `game_version` TEXT
+  `game_version` TEXT,
+  `season` TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS round_teams;
@@ -63,12 +64,12 @@ CREATE TABLE round_participants (
 INSERT INTO characters(`name`) 
 VALUES ('Akasha'), ('Alarak'), ('Anthrax'), ('Arges'), ('Artanis'), ('Avenger'), ('Axiom'), ('Balrog'), ('Bio'), 
 	   ('Boros'), ('Cain'), ('Corona'), ('Cow'), ('Crackling'), ('Cryo'), ('Cyprus'), ('Dakrun'), ('Darpa'), ('Defiler'), 
-       ('Dehaka'), ('Drake'), ('Dustin'), ('Egon'), ('Erekul'), ('Fenix'), ('Garamond'), ('Greelus'), ('Grunty'), ('Huntress'), 
-       ('Immortal'), ('Ixian'), ('Jackson'), ('Jak'), ('Karax'), ('Kerrigan'), ('Kuradel'), ('Kyrak'), ('Leo'), 
-       ('Lurker'), ('Lord Zyrkhan'), ('Maar'), ('Medic'), ('Mengsk'), ('Micro'), ('Marine King'), ('Narud'), ('Nova'), ('Null'), 
-       ('Overseer'), ('Penthos'), ('Psionic'), ('Pyro'), ('Queen'), ('Rancor'), ('Ravager'), ('Raynor'), ('Roach'), ('Rob'), 
-       ('Rory'), ('Shadow'), ('Starscream'), ('Stukov'), ('Tassadar'), ('Tosh'), ('Toxi'), ('Tychus'), ('Unix'), ('Vega'), 
-       ('Vergil'), ('Viler'), ('Viron'), ('Vorazun'), ('Vorpal'), ('Vulkan'), ('Warfield'), ('Yig'), ('Zeratul');
+     ('Dehaka'), ('Drake'), ('Dustin'), ('Egon'), ('Erekul'), ('Fenix'), ('Garamond'), ('Greelus'), ('Grunty'), ('Huntress'), 
+     ('Immortal'), ('Ixian'), ('Jackson'), ('Jak'), ('Karax'), ('Kerrigan'), ('Kuradel'), ('Kyrak'), ('Leo'), 
+     ('Lurker'), ('Lord Zyrkhan'), ('Maar'), ('Medic'), ('Mengsk'), ('Micro'), ('Marine King'), ('Narud'), ('Nova'), ('Null'), 
+     ('Overseer'), ('Penthos'), ('Psionic'), ('Pyro'), ('Queen'), ('Rancor'), ('Ravager'), ('Raynor'), ('Roach'), ('Rob'), 
+     ('Rory'), ('Shadow'), ('Starscream'), ('Stukov'), ('Tassadar'), ('Tosh'), ('Toxi'), ('Tychus'), ('Unix'), ('Vega'), 
+     ('Vergil'), ('Viler'), ('Viron'), ('Vorazun'), ('Vorpal'), ('Vulkan'), ('Warfield'), ('Yig'), ('Zeratul');
 
 INSERT INTO roles(`name`)
 VALUES ('AA Melee'), ('AA Ranged'), ('Bruiser Melee'), ('Bruiser Ranged'), ('Spell Damage'), ('Support'), ('Tank');
@@ -179,8 +180,10 @@ VALUES ('Akasha', 'AA Melee'), ('Akasha', 'AA Ranged'), ('Akasha', 'Bruiser Mele
 INSERT INTO users(`username`, `pw_hash`, `pw_salt`)
 VALUES ('admin', 0, 0), ('nathan', 0, 0), ('ariel', 0, 0), ('jim', 0, 0);
 
-INSERT INTO rounds(`id`, `started`, `duration_minutes`, `game_version`)
-VALUES (396, '2021-02-05', 47, '3.100'), (397, '2021-02-05', 65, '3.100'), (398, '2021-02-05', 40, '3.100');
+INSERT INTO rounds(`id`, `started`, `duration_minutes`, `game_version`, `season`)
+VALUES (396, '2021-02-05', 47, '3.100', 'Season 1'), 
+       (397, '2021-02-05', 65, '3.100', 'Season 1'), 
+       (398, '2021-02-05', 40, '3.100', 'Season 1');
 
 INSERT INTO round_teams(`round_id`, `team_id`, `win`)
 VALUES (396, 'Protoss',0), (396,'Zerg', 1), 
@@ -190,7 +193,7 @@ VALUES (396, 'Protoss',0), (396,'Zerg', 1),
 INSERT INTO round_participants(`character_name`, `username`, `round_id`, `team_id`, `role_name`, `kills`, `deaths`,`assists`,`creep_kills`)
 VALUES ('Micro', 'Sterilizer', 396, 'Protoss', 'Tank', 0, 12, 3, 28),
        ('Raynor', 'Fetext', 396, 'Protoss', 'Spell Damage', 3, 10, 9, 81),
-       ('Lord Zyrkhan', 'Grasshead', 396, 'Tank', 'Tank', 5, 8, 5, 69),
+       ('Lord Zyrkhan', 'Grasshead', 396, 'Protoss', 'Tank', 5, 8, 5, 69),
        ('Rancor', 'Cigs', 396, 'Protoss', 'Support', 0, 3, 14, 10),
        ('Nova', 'Spookygeorge', 396, 'Protoss', 'AA Ranged', 9, 8, 2, 190),
        ('Avenger', 'Megastar', 396, 'Zerg', 'AA Ranged', 8, 4, 18, 169),

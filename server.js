@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const lolDAL = require("./lol-dal.js");
+const multer  = require('multer');
+const memoryUpload = multer({ storage: multer.memoryStorage() });
+const lolDAL = require("./aos-dal.js");
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -12,7 +15,7 @@ app.get("/", handleIndexRequest);
 app.get("/init", handleInitRequest);
 app.get("/all-game-data.json", handleGetEverythingRequest);
 app.get("/all-game-data.csv", handleGetEverythingCsvRequest);
-
+app.post("/all-game-data.csv", memoryUpload.single('gameCSV'), handlePostEverythingCsvRequest);
 
 // Start listening to requests
 var listener = app.listen(process.env.PORT, async function() {
@@ -53,6 +56,16 @@ async function handleGetEverythingCsvRequest(request, response) {
     response.setHeader('Content-Disposition', 'attachment;filename=export.csv');
     response.setHeader('Content-Type', 'text/csv');
     response.send(csv);
+  } catch (err) {
+    console.error(err);
+    response.send(err);
+  }
+}
+
+async function handlePostEverythingCsvRequest(request, response) {
+  try {
+    console.log("handlePostEverythingCsvRequest");
+    console.log(request.file);
   } catch (err) {
     console.error(err);
     response.send(err);

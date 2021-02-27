@@ -18,6 +18,8 @@ exports.getAllGameData = async function() {
       id: row.round_id,
       started: row.round_started,
       duration: row.round_duration,
+      game_version: row.game_version,
+      season: row.season,
       teams: {}
     };
     const team = round.teams[row.team_id] = round.teams[row.team_id] || {
@@ -42,9 +44,59 @@ exports.getAllGameDataCsv = async function() {
   return objsToCsv(rows);
 }
 
-exports.updateAllGameDataCsv = async function(rows) {
-  await dbRunAll(await readSqlScript("init"));
+exports.updateAllGameDataCsv = async function(csv) { 
+  // Read the CSV as objects
+  const rows = csvToObjects(csv);
+  for (const row of rows) {
+    row.round_id = parseInt(row.round_id);
+    row.round_duration = parseInt(row.round_duration);
+    row.team_win = parseInt(row.team_win);
+    row.kills = parseInt(row.kills);
+    row.deaths = parseInt(row.deaths);
+  }
   
+  // Sort for insertion order
+  rows = rows.sort(function (a, b) {
+    if (a.round_id !== b.round_id) {
+      return a.round_id - b.round_id;
+    }
+    if (a.team_id !== b.team_id) {
+      return a.team_id < b.team_id ? -1 : 1;
+    }
+    return a.username < b.username ? -1 : 1; 
+  });
+  
+  const createRoundSQL = await readSqlScript('create-round');
+  const createRoundTeamSQL = await readSqlScript('create-round-team');
+  const createRoundParticipantSQL = await readSqlScript('create-round-participant');
+  
+  db.serialize(async () => {
+    await dbRun("BEGIN TRANSACTION;");
+    
+    await dbRunAll(await readSqlScript("init"));
+    
+    let previousRoundID = null;
+    let previousTeamID = null;
+    
+    for (const row of rows) {
+      if (row.round_id !== previousRoundID) {
+        // Create the round
+        await db.run(createRoundSQL, [row.round_id, row.round_started, row.round_duration, row.game_version, row.season]);
+      }
+      if (row.team_id !== previousTeamID) {
+        // Create the round team
+        await db.run(createRoundTeamSQL, [row.round_id, row.team_id, row.team_win]);
+      }
+      
+      // Create the round participant
+      await db.run(createRoundParticipantSQL, [row.character_name, row.username, row.role_name, row.round_id, row.team_id, row.role_name, row.kills, row.deaths, row.assists, row.creep_kills]);
+      
+      previousRoundID = row.round_id;    
+      previousTeamID = row.team_id;
+    }
+    
+    await db.run("COMMIT;");
+  });
 }
 
 // region Private helpers
@@ -69,10 +121,10 @@ async function dbRunAll(sqlBatch) {
   }
 }
 
-async function dbRun(sql) {
+async function dbRun(sql, parameters) {
   return new Promise((resolve, reject) => {
     console.log(`Executing ` + sql);
-    db.run(sql, [], function(err) {
+    db.run(sql, parameters || [], function(err) {
       if (err) {
         reject(err);
       } else {
@@ -115,7 +167,20 @@ function objsToCsv(array) {
 }
 
 function csvToObjects(csvWithHeaderRow) {
+  const csvRows = csvWithHeaderRow.split('\n');
+  const keys = csvRows[0].split(',');
   
+  const objs = [];
+  for (let i = 1; i < csvRows.length; i++) {
+    const obj = {};
+    const cells = csvRows[i].split(',');
+    for (let i = 0; i < keys.length; i++) {
+      obj[keys[i]] = cells[i];
+    }
+    objs.push(obj);
+  }
+  
+  return objs;
 }
 
 // endregion
