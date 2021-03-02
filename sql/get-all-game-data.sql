@@ -15,4 +15,5 @@ SELECT p.round_id
 FROM round_participants p
 JOIN rounds r ON p.round_id = r.id
 JOIN round_teams t ON p.round_id = t.round_id and p.team_id = t.team_id
-ORDER BY p.round_id ASC, p.team_id asc, p.username ASC;
+WHERE r.id in (SELECT id FROM rounds ORDER BY started DESC LIMIT ?)
+ORDER BY p.round_id DESC, p.team_id asc, p.username ASC;

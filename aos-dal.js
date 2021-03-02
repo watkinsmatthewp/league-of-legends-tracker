@@ -7,10 +7,10 @@ exports.init = async function() {
   return await dbRunAll(await readSqlScript("init"));
 };
 
-exports.getAllGameData = async function() {
+exports.getAllGameData = async function(limit) {
   const rounds = {};
   
-  const rows = await dbGetAll(await readSqlScript("get-all-game-data"));  
+  const rows = await dbGetAll(await readSqlScript("get-all-game-data"), limit || 5);  
   for (const row of rows) {
     const round = rounds[row.round_id] = rounds[row.round_id] || {
       id: row.round_id,
@@ -37,8 +37,8 @@ exports.getAllGameData = async function() {
   return rounds;
 };
 
-exports.getAllGameDataCsv = async function() {
-  const rows = await dbGetAll(await readSqlScript("get-all-game-data"));
+exports.getAllGameDataCsv = async function(limit) {
+  const rows = await dbGetAll(await readSqlScript("get-all-game-data"), limit || 5);
   return objsToCsv(rows);
 }
 
@@ -51,6 +51,8 @@ exports.updateAllGameDataCsv = async function(csv) {
     row.team_win = parseInt(row.team_win);
     row.kills = parseInt(row.kills);
     row.deaths = parseInt(row.deaths);
+    row.assists = parseInt(row.assists);
+    row.creep_kills = parseInt(row.creep_kills);
   }
   
   // Sort for insertion order
@@ -73,24 +75,29 @@ exports.updateAllGameDataCsv = async function(csv) {
     let previousTeamID = null;
     
     await dbRunAll(await readSqlScript("init"));
-    for (const row of rows) {
-      if (row.round_id !== previousRoundID) {
-        console.log(`Creating new round ${row.round_id}`);
-        await dbRun(createRoundSQL, [row.round_id, row.round_started, row.round_duration, row.game_version, row.season]);
-        previousTeamID = null;
+    for (let rowNumber = 0; rowNumber < rows.length; rowNumber++) {
+      const row = rows[rowNumber];
+      try {
+        if (row.round_id !== previousRoundID) {
+          console.log(`Creating new round ${row.round_id}`);
+          await dbRun(createRoundSQL, [row.round_id, row.round_started, row.round_duration, row.game_version, row.season]);
+          previousTeamID = null;
+        }
+        if (row.team_id !== previousTeamID) {
+          // Create the round team
+          console.log(`Creating new team ${row.team_id} for round ${row.round_id}`);
+          await dbRun(createRoundTeamSQL, [row.round_id, row.team_id, row.team_win]);
+        }
+
+        // Create the round participant
+        console.log(`Creating participant ${JSON.stringify(row)}`);
+        await dbRun(createRoundParticipantSQL, [row.character_name, row.username, row.round_id, row.team_id, row.role_name, row.kills, row.deaths, row.assists, row.creep_kills]);
+
+        previousRoundID = row.round_id;    
+        previousTeamID = row.team_id;
+      } catch (err) {
+        throw new Error(`CSV ine #${rowNumber + 2}: ${err}`);
       }
-      if (row.team_id !== previousTeamID) {
-        // Create the round team
-        console.log(`Creating new team ${row.team_id} for round ${row.round_id}`);
-        await dbRun(createRoundTeamSQL, [row.round_id, row.team_id, row.team_win]);
-      }
-      
-      // Create the round participant
-      // INSERT INTO round_participants(`character_name`, `username`, `round_id`, `team_id`, `role_name`, `kills`, `deaths`, `assists`, `creep_kills`)
-      await dbRun(createRoundParticipantSQL, [row.character_name, row.username, row.round_id, row.team_id, row.role_name, row.kills, row.deaths, row.assists, row.creep_kills]);
-      
-      previousRoundID = row.round_id;    
-      previousTeamID = row.team_id;
     }
   });
 }
@@ -130,9 +137,10 @@ async function dbRun(sql, parameters) {
   });
 }
 
-async function dbGetAll(sql) {
+async function dbGetAll(sql, parameters) {
   return new Promise((resolve, reject) => {
-    db.all(sql, (err, rows) => {
+    console.log(sql);
+    db.all(sql, parameters || [], (err, rows) => {
       if (err) {
         reject(err);
       } else {
@@ -161,13 +169,13 @@ function objsToCsv(array) {
 }
 
 function csvToObjects(csvWithHeaderRow) {
-  const csvRows = csvWithHeaderRow.split('\n');
-  const keys = csvRows[0].split(',');
+  const csvRows = csvWithHeaderRow.trim().replace(/\r/g, "").split('\n');
+  const keys = csvRows[0].split(',').map(s => s.trim());
   
   const objs = [];
   for (let i = 1; i < csvRows.length; i++) {
     const obj = {};
-    const cells = csvRows[i].split(',');
+    const cells = csvRows[i].split(',').map(s => s.trim());
     for (let i = 0; i < keys.length; i++) {
       obj[keys[i]] = cells[i];
     }

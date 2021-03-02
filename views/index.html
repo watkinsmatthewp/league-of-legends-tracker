@@ -61,7 +61,7 @@
 
             <div class="row mt-4">
               <div class="col-lg" v-for="team in round.teams">
-                <h4 :class="{ 'text-success': team.win, 'text-danger': !team.win }">Team #{{ team.id }} ({{ team.win ? "Winner" : "Loser" }})</h4>
+                <h4 :class="{ 'text-success': team.win, 'text-danger': !team.win }">Team {{ team.id }} {{ team.win ? "won" : "loss" }}</h4>
                 <table class="table table-bordered">
                   <thead>
                     <tr>
