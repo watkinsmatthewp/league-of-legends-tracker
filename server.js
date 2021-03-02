@@ -1,6 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const lolDAL = require("./lol-dal.js");
+const multer  = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const lolDAL = require("./aos-dal.js");
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -11,7 +15,8 @@ app.set('json spaces', 2);
 app.get("/", handleIndexRequest);
 app.get("/init", handleInitRequest);
 app.get("/all-game-data.json", handleGetEverythingRequest);
-
+app.get("/all-game-data.csv", handleGetEverythingCsvRequest);
+app.post("/all-game-data.csv", upload.single("dbFile"), handlePostEverythingCsvRequest);
 
 // Start listening to requests
 var listener = app.listen(process.env.PORT, async function() {
@@ -26,9 +31,8 @@ async function handleIndexRequest(request, response) {
 
 async function handleInitRequest(request, response) {
   try {
-    console.log("handleInitRequest");
     await lolDAL.init();
-    response.send("Done");
+    response.redirect("/");
   } catch (err) {
     console.error(err);
     response.send(err);
@@ -37,8 +41,30 @@ async function handleInitRequest(request, response) {
 
 async function handleGetEverythingRequest(request, response) {
   try {
-    console.log("handleGetEverythingRequest");
     response.json(await lolDAL.getAllGameData());
+  } catch (err) {
+    console.error(err);
+    response.send(err);
+  }
+}
+
+async function handleGetEverythingCsvRequest(request, response) {
+  try {
+    const csv = await lolDAL.getAllGameDataCsv();
+    response.setHeader('Content-Disposition', 'attachment;filename=export.csv');
+    response.setHeader('Content-Type', 'text/csv');
+    response.send(csv);
+  } catch (err) {
+    console.error(err);
+    response.send(err);
+  }
+}
+
+async function handlePostEverythingCsvRequest(request, response) {
+  try {
+    const csv = Buffer.from(request.file.buffer).toString("utf-8");
+    await lolDAL.updateAllGameDataCsv(csv);
+    response.redirect("/");
   } catch (err) {
     console.error(err);
     response.send(err);

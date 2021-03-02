@@ -3,23 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" ontent="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>LoL Stats</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <title>AOS Stats</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
-        <a class="navbar-brand" href="#">LoL Stats</a>
+        <a class="navbar-brand" href="/">AOS Tracker</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
     
     <div class="container">
-      <main id="app" role="main" style="margin-top: 4.5rem;">
-        <div class="card" v-for="round in rounds">
+      <main id="app" role="main" class="mt-4">
+        <div class="card text-dark bg-light mb-3">
+          <div class="card-header">Game data</div>
+          <div class="card-body">
+            <form action="/all-game-data.csv" method="post" enctype="multipart/form-data">
+              <div class="mb-3">
+                <input @change="onDbFileChange" class="form-control" type="file" id="dbFile" name="dbFile" accept=".csv">
+              </div>
+              <a href="/all-game-data.csv" class="btn btn-success"><i class="fas fa-download"></i> Export</a>
+              <a href="/init" class="btn btn-danger"><i class="fas fa-trash"></i> Reset</a>
+              <button type="submit" class="btn float-end" :class="{ 'btn-warning': dbFileSelected, 'btn-light': !dbFileSelected }" v-bind:disabled="!dbFileSelected"><i class="fas fa-upload"></i> Import</button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="card mb-3" v-for="round in rounds">
           <div class="card-header">Game #{{ round.id }}</div>
           <div class="card-body">
-            <h4> Game stats</h4>
+            <h4>Game stats</h4>
             <table class="table table-bordered">
               <tr>
                 <th class="w-50">Started at</th>
@@ -27,13 +51,17 @@
               </tr>
               <tr>
                 <th>Duration</th>
-                <td>{{ Math.round(round.duration / 60) }} minutes</td>
+                <td>{{ Math.round(round.duration) }} minutes</td>
+              </tr>
+              <tr>
+                <th>Season</th>
+                <td>{{ round.season }}</td>
               </tr>
             </table>
 
             <div class="row mt-4">
               <div class="col-lg" v-for="team in round.teams">
-                <h4 :class="{ 'text-success': team.win, 'text-danger': !team.win }">Team #{{ team.id }} ({{ team.win ? "Winner" : "Loser" }})</h4>
+                <h4 :class="{ 'text-success': team.win, 'text-danger': !team.win }">Team {{ team.id }} {{ team.win ? "won" : "loss" }}</h4>
                 <table class="table table-bordered">
                   <thead>
                     <tr>
@@ -65,5 +93,6 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="./app.js"></script>
     <script src="https://kit.fontawesome.com/71d0e575d1.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
   </body>
 </html>
